@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>deepclaws demo</title>
+  <style>
+    :root {
+      --bg: #f3efe7;
+      --panel: #fffaf1;
+      --ink: #1f1d1a;
+      --muted: #6c655c;
+      --accent: #0f766e;
+      --accent-2: #b45309;
+      --line: #d8cdbd;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(180,83,9,0.10), transparent 30%),
+        radial-gradient(circle at top right, rgba(15,118,110,0.10), transparent 28%),
+        var(--bg);
+    }
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+    .hero {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 4rem);
+      line-height: 0.95;
+      font-weight: 700;
+    }
+    .sub {
+      color: var(--muted);
+      max-width: 760px;
+      line-height: 1.5;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 18px;
+    }
+    .panel {
+      background: rgba(255,250,241,0.88);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(31,29,26,0.06);
+    }
+    .label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+    select, button {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      font: inherit;
+      background: white;
+    }
+    button {
+      background: linear-gradient(135deg, var(--accent), #115e59);
+      color: white;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: wait;
+    }
+    .meta {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta-item {
+      padding: 12px;
+      border-radius: 12px;
+      background: white;
+      border: 1px solid var(--line);
+    }
+    .meta-item strong {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .status-pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15,118,110,0.12);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: "IBM Plex Mono", Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    #log {
+      min-height: 520px;
+      max-height: 70vh;
+      overflow: auto;
+      background: #161513;
+      color: #f8f1e5;
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid #2b2823;
+    }
+    .artifact {
+      color: var(--accent-2);
+      font-weight: 600;
+      word-break: break-all;
+    }
+    @media (max-width: 920px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="eyebrow">deepclaws live demo</div>
+      <h1>Ghost fork. Kimi run. Overclaw optimize.</h1>
+      <div class="sub">
+        Select one benchmark question, create an isolated Ghost fork, run the base SQL agent,
+        then stream the Overclaw loop live. Macroscope comes after this run.
+      </div>
+    </section>
+    <section class="grid">
+      <aside class="panel">
+        <div class="label">Question</div>
+        <select id="questionSelect"></select>
+        <button id="runButton">Run One-Question Demo</button>
+        <div class="meta">
+          <div class="meta-item"><strong>Status</strong><span id="status" class="status-pill">idle</span></div>
+          <div class="meta-item"><strong>Phase</strong><div id="phase">waiting</div></div>
+          <div class="meta-item"><strong>Fork DB</strong><div id="forkDb">not created</div></div>
+          <div class="meta-item"><strong>Final SQL</strong><pre id="finalSql">not yet available</pre></div>
+          <div class="meta-item"><strong>Artifacts</strong><div id="artifacts">none yet</div></div>
+        </div>
+      </aside>
+      <main class="panel">
+        <div class="label">Live Run Log</div>
+        <pre id="log">Waiting for run...</pre>
+      </main>
+    </section>
+  </div>
+  <script>
+    const questionSelect = document.getElementById("questionSelect");
+    const runButton = document.getElementById("runButton");
+    const statusEl = document.getElementById("status");
+    const phaseEl = document.getElementById("phase");
+    const forkDbEl = document.getElementById("forkDb");
+    const finalSqlEl = document.getElementById("finalSql");
+    const artifactsEl = document.getElementById("artifacts");
+    const logEl = document.getElementById("log");
+
+    let currentRunId = null;
+    let eventSource = null;
+
+    async function loadQuestions() {
+      const res = await fetch("/api/questions");
+      const rows = await res.json();
+      for (const row of rows) {
+        const opt = document.createElement("option");
+        opt.value = row.instance_id;
+        opt.textContent = `${row.instance_id} · ${row.question}`;
+        questionSelect.appendChild(opt);
+      }
+    }
+
+    async function refreshRun() {
+      if (!currentRunId) return;
+      const res = await fetch(`/api/runs/${currentRunId}`);
+      const run = await res.json();
+      statusEl.textContent = run.status;
+      phaseEl.textContent = run.phase;
+      forkDbEl.textContent = run.fork_db_id || "not created";
+      finalSqlEl.textContent = run.final_sql || "not yet available";
+      if (run.error) {
+        artifactsEl.innerHTML = `<div class="artifact">${run.error}</div>`;
+      } else {
+        artifactsEl.innerHTML = Object.entries(run.artifacts || {}).map(([k, v]) => {
+          return `<div><strong>${k}</strong><div class="artifact">${v}</div></div>`;
+        }).join("") || "none yet";
+      }
+      if (run.status === "complete" || run.status === "error") {
+        runButton.disabled = false;
+      }
+    }
+
+    function appendLog(line) {
+      logEl.textContent += (logEl.textContent.trim() ? "\n" : "") + line;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    async function startRun() {
+      runButton.disabled = true;
+      logEl.textContent = "";
+      finalSqlEl.textContent = "not yet available";
+      artifactsEl.textContent = "none yet";
+      const instance_id = questionSelect.value;
+      const res = await fetch("/api/runs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ instance_id })
+      });
+      const data = await res.json();
+      currentRunId = data.run_id;
+      await refreshRun();
+      if (eventSource) eventSource.close();
+      eventSource = new EventSource(`/api/runs/${currentRunId}/events`);
+      eventSource.onmessage = async (event) => {
+        appendLog(event.data);
+        await refreshRun();
+      };
+      eventSource.addEventListener("done", async () => {
+        await refreshRun();
+        eventSource.close();
+      });
+    }
+
+    runButton.addEventListener("click", startRun);
+    loadQuestions();
+  </script>
+</body>
+</html>
