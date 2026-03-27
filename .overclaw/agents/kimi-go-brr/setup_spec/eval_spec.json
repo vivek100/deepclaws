@@ -1,0 +1,194 @@
+{
+  "agent_description": "This agent is a Ghost-hosted PostgreSQL SQL-generation assistant. It takes a natural-language question plus database and schema context, inspects the target schema through Ghost tools, optionally validates SQL by executing it against the schema, and returns the final SQL along with a lightweight success indicator and schema echo for evaluation or downstream use.",
+  "agent_path": "C:\\Users\\shukl\\Desktop\\projects\\kimiGoBrr\\agent\\overclaw_agent.py",
+  "input_schema": {
+    "question": {
+      "type": "string",
+      "description": "Natural-language analytics question to answer with SQL."
+    },
+    "db_id": {
+      "type": "string",
+      "description": "Ghost database identifier to query; if omitted, falls back to GHOST_MAIN_DB_ID."
+    },
+    "schema": {
+      "type": "string",
+      "description": "Target PostgreSQL schema name to treat as the active namespace."
+    },
+    "schema_name": {
+      "type": "string",
+      "description": "Alternate name for the target schema, accepted as input alias."
+    },
+    "evidence": {
+      "type": "string",
+      "description": "Optional external knowledge or benchmark evidence to guide SQL generation."
+    }
+  },
+  "output_fields": {
+    "final_sql": {
+      "type": "text",
+      "description": "The final SQL extracted from the agent response.",
+      "weight": 35,
+      "importance": "critical",
+      "eval_mode": "non_empty"
+    },
+    "has_sql": {
+      "type": "boolean",
+      "description": "Whether a SQL statement was successfully extracted from the agent response.",
+      "weight": 23,
+      "importance": "important"
+    },
+    "schema_name": {
+      "type": "text",
+      "description": "Echo of the resolved schema name used for the run.",
+      "weight": 12,
+      "importance": "minor",
+      "eval_mode": "skip"
+    }
+  },
+  "structure_weight": 20,
+  "total_points": 100,
+  "optimizable_elements": [
+    "System prompt / instructions in agent/prompts.py",
+    "Tool definitions and descriptions in agent/tools.py (parameter schemas and docstrings, not implementations)",
+    "Input formatting and prompt construction in agent/agent.py run_question \u2014 can change tool-call ordering guidance, validation hints, and retry/post-processing steps",
+    "Agent orchestration logic in agent/overclaw_agent.py run() \u2014 input normalization, fallback behavior, validation, and output shaping",
+    "Model selection in agent/llm.py (model name, base URL, decoding settings)"
+  ],
+  "fixed_elements": [
+    "Tool implementations in agent/tools.py (the actual subprocess/Ghost CLI calls)",
+    "Data source / database backend and Ghost CLI executable location",
+    "Output parsing logic in eval/score.py (extract_final_sql and related parsing helpers)",
+    "Import structure and tracing integration / framework wiring (LangGraph/LangChain integration points)"
+  ],
+  "tool_config": {
+    "expected_tools": [
+      "ghost_schema",
+      "ghost_sql"
+    ],
+    "dependencies": [
+      {
+        "from_tool": "ghost_schema",
+        "from_field": "schema description / column metadata",
+        "to_tool": "ghost_sql",
+        "to_param": "query",
+        "description": "The agent should inspect table and column names before constructing a query, and then use that schema knowledge to compose executable SQL."
+      },
+      {
+        "from_tool": "ghost_schema",
+        "from_field": "schema description / column metadata",
+        "to_tool": "ghost_sql",
+        "to_param": "query",
+        "description": "Schema metadata informs validation of joins, filters, aggregations, and selected columns before execution."
+      },
+      {
+        "from_tool": "ghost_list",
+        "from_field": "available database ids",
+        "to_tool": "ghost_connect",
+        "to_param": "database_id",
+        "description": "A listed database ID may be needed to connect to or inspect a target Ghost database."
+      },
+      {
+        "from_tool": "ghost_connect",
+        "from_field": "connection string",
+        "to_tool": "ghost_sql",
+        "to_param": "database_id",
+        "description": "Conceptually the connection/target database selected by connect is the same database target later queried with SQL, though the current code does not actually pass the connection string onward."
+      }
+    ],
+    "param_constraints": {
+      "ghost_connect": {
+        "database_id": [
+          "string identifier for a Ghost database"
+        ]
+      },
+      "ghost_schema": {
+        "database_id": [
+          "string identifier for a Ghost database"
+        ],
+        "schema": [
+          "string schema name"
+        ]
+      },
+      "ghost_sql": {
+        "database_id": [
+          "string identifier for a Ghost database"
+        ],
+        "schema": [
+          "string schema name"
+        ],
+        "query": [
+          "valid SQL text"
+        ]
+      }
+    }
+  },
+  "tool_usage_weight": 10,
+  "consistency_rules": [
+    {
+      "field_a": "final_sql",
+      "field_b": "has_sql",
+      "type": "correlation",
+      "description": "If final_sql is non-empty, has_sql should be true; if no SQL is extractable, has_sql should be false.",
+      "penalty": 3.0
+    },
+    {
+      "field_a": "schema_name",
+      "field_b": "final_sql",
+      "type": "correlation",
+      "description": "The returned SQL should be written for the echoed schema_name using the appropriate search_path or explicit schema references.",
+      "penalty": 2.5
+    }
+  ],
+  "policy": {
+    "purpose": "Generate and validate PostgreSQL SQL for a Ghost-hosted schema question.",
+    "domain_rules": [
+      "Use the provided schema/schema_name as the active schema namespace. (inferred)",
+      "Inspect schema metadata before assuming table or column names. (inferred)",
+      "Prefer executable PostgreSQL SQL over speculative or stylistic query forms. (inferred)",
+      "Treat evidence as optional guidance only; do not rely on it over schema inspection. (inferred)"
+    ],
+    "domain_edge_cases": [
+      {
+        "scenario": "Schema inspection returns an error string",
+        "correct_handling": "Revise the query using available tool output and continue if possible. (inferred)"
+      },
+      {
+        "scenario": "No SQL can be extracted from the final response",
+        "correct_handling": "Mark has_sql false and return an empty final_sql. (inferred)"
+      },
+      {
+        "scenario": "db_id is missing from input",
+        "correct_handling": "Fall back to GHOST_MAIN_DB_ID, otherwise fail early."
+      },
+      {
+        "scenario": "Both schema and schema_name are provided",
+        "correct_handling": "Use schema as the resolved schema name. (inferred)"
+      }
+    ],
+    "terminology": {
+      "Ghost database": "Target PostgreSQL database identified by db_id.",
+      "Active schema": "Schema namespace used for inspection and execution.",
+      "Final SQL": "The last SQL block or SQL-like statement extracted from the agent's final message."
+    },
+    "output_constraints": [
+      "Return final_sql, has_sql, and schema_name.",
+      "has_sql must be true iff final_sql is non-empty.",
+      "schema_name must echo the resolved schema input."
+    ],
+    "tool_requirements": [
+      "Use ghost_schema first for the target schema.",
+      "Use ghost_sql to validate or execute candidate SQL.",
+      "ghost_list and ghost_connect are optional and not required by the main flow."
+    ],
+    "decision_mapping": [
+      "If SQL is extracted from the final agent message, set has_sql to true.",
+      "If no SQL is extractable, set has_sql to false and final_sql to an empty string.",
+      "The SQL should match the echoed schema_name, ideally via search_path or explicit schema qualification."
+    ],
+    "quality_expectations": [
+      "Queries should be grounded in schema metadata.",
+      "Avoid assuming table or column names without inspection.",
+      "Use PostgreSQL-compatible syntax and keep responses concise."
+    ]
+  }
+}

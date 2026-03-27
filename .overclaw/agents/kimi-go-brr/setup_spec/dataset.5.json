@@ -1,0 +1,92 @@
+[
+  {
+    "input": {
+      "question": "I want to analyze how the Signal-to-Noise Quality Indicator (SNQI) varies across different weather conditions. For each weather condition, give weather condition name, the average SNQI, the median SNQI, and count how many analyzable signals there are. Sort the result by average SNQI in descending order.",
+      "db_id": "narpw1zpat",
+      "schema": "alien",
+      "evidence": "[0, 50]"
+    },
+    "expected_output": {
+      "final_sql": "/* \nIntent: Analyze signal quality (SNQI) with atmospheric conditions using window functions\nKnowledge Used: SNQI (id:0)\nAdvanced Features: Window functions, conditional aggregation\n*/\nWITH signal_quality AS (\n    -- Step 1: Calculate SNQI for all signals with their observation conditions\n    SELECT \n        s.SignalRegistry,\n        s.SnrRatio - 0.1 * ABS(s.NoiseFloorDbm) AS SNQI,\n        o.WeathProfile\n    FROM Signals s\n    JOIN Telescopes t ON s.TelescRef = t.TelescRegistry\n    JOIN Observatories o ON t.ObservStation = o.ObservStation\n)\n-- Step 2: Rank signals by quality within weather profiles\nSELECT \n    WeathProfile,\n    AVG(SNQI) AS avg_snqi,\n    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY SNQI) AS median_snqi,\n    COUNT(*) FILTER (WHERE SNQI > 0) AS analyzable_signals\nFROM signal_quality\nGROUP BY WeathProfile\nORDER BY avg_snqi DESC;",
+      "has_sql": true,
+      "schema_name": "alien"
+    },
+    "metadata": {
+      "instance_id": "alien_1",
+      "difficulty": "Moderate",
+      "category": "Query"
+    }
+  },
+  {
+    "input": {
+      "question": "Classify signals by TOLS Category, and for each group, show the category name, signal count, average Bandwidth-to-Frequency Ratio, and the standard deviation of the anomaly score.",
+      "db_id": "narpw1zpat",
+      "schema": "alien",
+      "evidence": "[3, 51, 52]"
+    },
+    "expected_output": {
+      "final_sql": "/*\nIntent: Analyze distribution of technosignature probabilities using statistical functions\nKnowledge Used: TOLS (id:3)\nAdvanced Features: Statistical functions, CASE expressions\n*/\n-- Step 1: Calculate TOLS for all signals with probability data\nSELECT \n    -- Step 2: Bin the TOLS values into categories\n    CASE \n        WHEN p.TechSigProb * (1 - p.NatSrcProb) * p.SigUnique * (0.5 + p.AnomScore/10) < 0.25 THEN 'Low'\n        WHEN p.TechSigProb * (1 - p.NatSrcProb) * p.SigUnique * (0.5 + p.AnomScore/10) < 0.75 THEN 'Medium'\n        ELSE 'High'\n    END AS tol_category,\n    -- Step 3: Calculate statistics for each category\n    COUNT(*) AS signal_count,\n    AVG(s.BwHz/(s.CenterFreqMhz * 1000000)) AS avg_bfr,\n    STDDEV(p.AnomScore) AS anomaly_stddev\nFROM Signals s\nJOIN SignalProbabilities p ON s.SignalRegistry = p.SignalRef\nGROUP BY tol_category;",
+      "has_sql": true,
+      "schema_name": "alien"
+    },
+    "metadata": {
+      "instance_id": "alien_2",
+      "difficulty": "Simple",
+      "category": "Query"
+    }
+  },
+  {
+    "input": {
+      "question": "Analyze how lunar interference affects observations by showing the current moon phase, average Lunar Interference Factor (LIF) and the count of high lunar interference events for each observatory, sorted by average LIF in descending order.",
+      "db_id": "narpw1zpat",
+      "schema": "alien",
+      "evidence": "[9, 53]"
+    },
+    "expected_output": {
+      "final_sql": "/*\nIntent: Quantify lunar interference impact using LIF calculation\nKnowledge Used: LIF (id:9)\nAdvanced Features: Date functions, lateral join\n*/\n-- Step 1: Calculate LIF for all observations with lunar data\nSELECT \n    o.ObservStation,\n    -- Step 2: Calculate average LIF by moon phase\n    o.LunarStage,\n    AVG((1 - o.LunarDistDeg/180) * (1 - o.AtmosTransparency)) AS avg_lif,\n    -- Step 3: Count high interference events\n    COUNT(*) FILTER (WHERE (1 - o.LunarDistDeg/180) * (1 - o.AtmosTransparency) > 0.5) AS high_interf_count\nFROM Observatories o\nGROUP BY o.ObservStation, o.LunarStage\nORDER BY avg_lif DESC;",
+      "has_sql": true,
+      "schema_name": "alien"
+    },
+    "metadata": {
+      "instance_id": "alien_3",
+      "difficulty": "Simple",
+      "category": "Query"
+    }
+  },
+  {
+    "input": {
+      "question": "Which observatory stations are discovering the most potential technosignatures? For each station, display the observatory name, how many signals meet our technosignature criteria, their average TOLS score, average BFR values, and what percentage of all detected technosignatures they've found. I need this ranked by the stations with the most discoveries first.",
+      "db_id": "narpw1zpat",
+      "schema": "alien",
+      "evidence": "[10, 3]"
+    },
+    "expected_output": {
+      "final_sql": "/*\nIntent: Evaluate detection efficiency for potential technosignatures\nKnowledge Used: Technosignature (id:10), TOLS (id:3)\nAdvanced Features: Common Table Expressions, complex filtering\n*/\nWITH tech_signals AS (\n    SELECT \n        s.SignalRegistry,\n        s.TelescRef,\n        p.TechSigProb * (1 - p.NatSrcProb) * p.SigUnique * (0.5 + p.AnomScore/10) AS TOLS,\n        s.BwHz/(s.CenterFreqMhz * 1000000) AS BFR\n    FROM Signals s\n    JOIN SignalProbabilities p ON s.SignalRegistry = p.SignalRef\n    WHERE p.TechSigProb > 0.7 \n      AND p.NatSrcProb < 0.3 \n      AND p.ArtSrcProb < 50\n      AND s.BwHz/(s.CenterFreqMhz * 1000000) < 0.001\n)\nSELECT \n    t.ObservStation,\n    COUNT(*) AS potential_tech_signals,\n    AVG(ts.TOLS) AS avg_tols,\n    AVG(ts.BFR) AS avg_bfr,\n    COUNT(*) * 100.0 / (SELECT COUNT(*) FROM tech_signals) AS percentage_of_total\nFROM tech_signals ts\nJOIN Telescopes t ON ts.TelescRef = t.TelescRegistry\nGROUP BY t.ObservStation\nORDER BY potential_tech_signals DESC;",
+      "has_sql": true,
+      "schema_name": "alien"
+    },
+    "metadata": {
+      "instance_id": "alien_4",
+      "difficulty": "Moderate",
+      "category": "Query"
+    }
+  },
+  {
+    "input": {
+      "question": "Show me a breakdown of signal modulation types with at least 5 occurrences. For each modulation type, display the modulation type, the number of signals, the average Modulation Complexity Score (MCS), and average signal-to-noise ratio (SNR). Also include a detailed JSON with each signal's MCS and SNR values. Keys are the signal record IDs, and values are inner objects containing two fields: `mcs` \u2013 the signal\u2019s MCS value, and `snr` \u2013 the SNR value.",
+      "db_id": "narpw1zpat",
+      "schema": "alien",
+      "evidence": "[30]"
+    },
+    "expected_output": {
+      "final_sql": "/*\nIntent: Evaluate effectiveness of different modulation types\nKnowledge Used: MCS (id:30)\nAdvanced Features: JSON functions, advanced aggregation\n*/\nSELECT \n    s.ModType,\n    COUNT(*) AS signal_count,\n    AVG(s.ModIndex * (1 + (1 - ABS(s.FreqDriftHzs)/(s.FreqMhz*1000)) * \n        s.SigDurSec/(1 + s.DoppShiftHz/1000)) *\n        CASE \n            WHEN s.ModType = 'AM' THEN 2\n            WHEN s.ModType = 'FM' THEN 1.5\n            ELSE 1\n        END) AS avg_mcs,\n    AVG(s.SnrRatio) AS avg_snr,\n    JSON_OBJECT_AGG(\n        s.SignalRegistry,\n        JSON_BUILD_OBJECT(\n            'mcs', s.ModIndex * (1 + (1 - ABS(s.FreqDriftHzs)/(s.FreqMhz*1000)) * \n                   s.SigDurSec/(1 + s.DoppShiftHz/1000)) *\n                   CASE \n                       WHEN s.ModType = 'AM' THEN 2\n                       WHEN s.ModType = 'FM' THEN 1.5\n                       ELSE 1\n                   END,\n            'snr', s.SnrRatio\n        )\n    ) AS signal_details\nFROM Signals s\nWHERE s.ModType IS NOT NULL\nGROUP BY s.ModType\nHAVING COUNT(*) > 5;",
+      "has_sql": true,
+      "schema_name": "alien"
+    },
+    "metadata": {
+      "instance_id": "alien_5",
+      "difficulty": "Moderate",
+      "category": "Query"
+    }
+  }
+]

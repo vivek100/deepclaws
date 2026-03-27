@@ -53,7 +53,7 @@ Deliverables:
 Files:
 
 - `scripts/download_benchmark.py`
-- `scripts/load_benchmark.py`
+- `scripts/sqlite_to_postgres_sql.py`
 - `eval/dataset.json`
 
 Exit criteria:
@@ -108,7 +108,29 @@ Phase doc:
 
 - `docs/phases/PHASE_04_BASELINE_EVAL.md`
 
-## Phase 5: Tracing
+## Phase 5: Operator CLI
+
+Deliverables:
+
+- CLI entrypoints for common workflows
+- consistent command interface for Codex and local development
+- clear handoff path from CLI to future API endpoints
+
+Files:
+
+- `scripts/run_eval.py`
+- `scripts/run_question.py`
+- `scripts/show_experiment.py`
+
+Exit criteria:
+
+- core local workflows can be run through stable CLI commands instead of ad hoc shell snippets
+
+Phase doc:
+
+- `docs/phases/PHASE_05_OPERATOR_CLI.md`
+
+## Phase 6: Tracing
 
 Deliverables:
 
@@ -126,9 +148,9 @@ Exit criteria:
 
 Phase doc:
 
-- `docs/phases/PHASE_05_TRACING.md`
+- `docs/phases/PHASE_06_TRACING.md`
 
-## Phase 6: Git-based agent iteration
+## Phase 7: Git-based agent iteration
 
 Deliverables:
 
@@ -148,9 +170,9 @@ Exit criteria:
 
 Phase doc:
 
-- `docs/phases/PHASE_06_VERSIONING.md`
+- `docs/phases/PHASE_07_VERSIONING.md`
 
-## Phase 7: Improvement loop
+## Phase 8: Improvement loop
 
 Deliverables:
 
@@ -164,9 +186,9 @@ Exit criteria:
 
 Phase doc:
 
-- `docs/phases/PHASE_07_IMPROVEMENT_LOOP.md`
+- `docs/phases/PHASE_08_IMPROVEMENT_LOOP.md`
 
-## Phase 8: Demo surface
+## Phase 9: Demo surface
 
 Deliverables:
 
@@ -180,7 +202,7 @@ Exit criteria:
 
 Phase doc:
 
-- `docs/phases/PHASE_08_DEMO_SURFACE.md`
+- `docs/phases/PHASE_09_DEMO_SURFACE.md`
 
 ## Immediate next actions
 

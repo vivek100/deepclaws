@@ -1,4 +1,4 @@
-# Phase 6: Git-Based Versioning
+# Phase 7: Git-Based Versioning
 
 ## Goal
 

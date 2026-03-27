@@ -1,0 +1,22 @@
+{
+  "trace_id": "smoke_001_c2_000",
+  "input_data": {
+    "question": "Show me a breakdown of signal modulation types with at least 5 occurrences. For each modulation type, display the modulation type, the number of signals, the average Modulation Complexity Score (MCS), and average signal-to-noise ratio (SNR). Also include a detailed JSON with each signal's MCS and SNR values. Keys are the signal record IDs, and values are inner objects containing two fields: `mcs` \u2013 the signal\u2019s MCS value, and `snr` \u2013 the SNR value.",
+    "db_id": "narpw1zpat",
+    "schema": "alien",
+    "evidence": "[30]"
+  },
+  "output_data": {
+    "final_sql": "SELECT \n    s.modtype AS modulation_type,\n    COUNT(*) AS signal_count,\n    AVG(sc.complexidx) AS avg_mcs,\n    AVG(s.snrratio) AS avg_snr,\n    jsonb_object_agg(\n        s.signalregistry, \n        jsonb_build_object('mcs', sc.complexidx, 'snr', s.snrratio)\n    ) AS signal_details\nFROM alien.signals s\nJOIN alien.signalclassification sc ON s.signalregistry = sc.signalref\nGROUP BY s.modtype\nHAVING COUNT(*) >= 5;",
+    "has_sql": true,
+    "schema_name": "alien"
+  },
+  "spans": [],
+  "start_time": 1774651853.5154438,
+  "end_time": 1774651950.9614735,
+  "total_latency_ms": 97446.02966308594,
+  "total_tokens": 0,
+  "total_cost": 0.0,
+  "score": 0.0,
+  "error": null
+}

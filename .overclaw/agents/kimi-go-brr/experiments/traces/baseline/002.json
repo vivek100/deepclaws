@@ -1,0 +1,22 @@
+{
+  "trace_id": "baseline_002",
+  "input_data": {
+    "question": "Analyze how lunar interference affects observations by showing the current moon phase, average Lunar Interference Factor (LIF) and the count of high lunar interference events for each observatory, sorted by average LIF in descending order.",
+    "db_id": "narpw1zpat",
+    "schema": "alien",
+    "evidence": "[9, 53]"
+  },
+  "output_data": {
+    "final_sql": "WITH current_moon_phase AS (\n    SELECT phase_name \n    FROM alien.lunar_cycles \n    WHERE cycle_date <= CURRENT_DATE \n    ORDER BY cycle_date DESC \n    LIMIT 1\n),\nobservatory_lunar_stats AS (\n    SELECT \n        obsv.id,\n        obsv.name AS observatory_name,\n        AVG(obs.lunar_interference_factor) AS avg_lif,\n        COUNT(*) FILTER (WHERE obs.lunar_interference_factor >= 0.8) AS high_interference_events\n    FROM alien.observatories obsv\n    JOIN alien.observations obs ON obsv.id = obs.observatory_id\n    GROUP BY obsv.id, obsv.name\n)\nSELECT \n    s.observatory_name,\n    c.phase_name AS current_moon_phase,\n    ROUND(s.avg_lif::numeric, 4) AS average_lunar_interference_factor,\n    s.high_interference_events\nFROM observatory_lunar_stats s\nCROSS JOIN current_moon_phase c\nORDER BY s.avg_lif DESC;",
+    "has_sql": true,
+    "schema_name": "alien"
+  },
+  "spans": [],
+  "start_time": 1774651481.0716398,
+  "end_time": 1774651602.2873018,
+  "total_latency_ms": 121215.66200256348,
+  "total_tokens": 0,
+  "total_cost": 0.0,
+  "score": 0.0,
+  "error": null
+}

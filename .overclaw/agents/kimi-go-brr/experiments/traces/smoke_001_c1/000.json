@@ -1,0 +1,22 @@
+{
+  "trace_id": "smoke_001_c1_000",
+  "input_data": {
+    "question": "Show me a breakdown of signal modulation types with at least 5 occurrences. For each modulation type, display the modulation type, the number of signals, the average Modulation Complexity Score (MCS), and average signal-to-noise ratio (SNR). Also include a detailed JSON with each signal's MCS and SNR values. Keys are the signal record IDs, and values are inner objects containing two fields: `mcs` \u2013 the signal\u2019s MCS value, and `snr` \u2013 the SNR value.",
+    "db_id": "narpw1zpat",
+    "schema": "alien",
+    "evidence": "[30]"
+  },
+  "output_data": {
+    "final_sql": "",
+    "has_sql": false,
+    "schema_name": "alien"
+  },
+  "spans": [],
+  "start_time": 1774651748.326229,
+  "end_time": 1774651853.4767687,
+  "total_latency_ms": 105150.53963661194,
+  "total_tokens": 0,
+  "total_cost": 0.0,
+  "score": 0.0,
+  "error": null
+}

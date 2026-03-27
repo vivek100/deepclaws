@@ -1,0 +1,20 @@
+[
+  {
+    "input": {
+      "question": "I want to analyze how the Signal-to-Noise Quality Indicator (SNQI) varies across different weather conditions. For each weather condition, give weather condition name, the average SNQI, the median SNQI, and count how many analyzable signals there are. Sort the result by average SNQI in descending order.",
+      "db_id": "narpw1zpat",
+      "schema": "alien",
+      "evidence": "[0, 50]"
+    },
+    "expected_output": {
+      "final_sql": "/* \nIntent: Analyze signal quality (SNQI) with atmospheric conditions using window functions\nKnowledge Used: SNQI (id:0)\nAdvanced Features: Window functions, conditional aggregation\n*/\nWITH signal_quality AS (\n    -- Step 1: Calculate SNQI for all signals with their observation conditions\n    SELECT \n        s.SignalRegistry,\n        s.SnrRatio - 0.1 * ABS(s.NoiseFloorDbm) AS SNQI,\n        o.WeathProfile\n    FROM Signals s\n    JOIN Telescopes t ON s.TelescRef = t.TelescRegistry\n    JOIN Observatories o ON t.ObservStation = o.ObservStation\n)\n-- Step 2: Rank signals by quality within weather profiles\nSELECT \n    WeathProfile,\n    AVG(SNQI) AS avg_snqi,\n    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY SNQI) AS median_snqi,\n    COUNT(*) FILTER (WHERE SNQI > 0) AS analyzable_signals\nFROM signal_quality\nGROUP BY WeathProfile\nORDER BY avg_snqi DESC;",
+      "has_sql": true,
+      "schema_name": "alien"
+    },
+    "metadata": {
+      "instance_id": "alien_1",
+      "difficulty": "Moderate",
+      "category": "Query"
+    }
+  }
+]

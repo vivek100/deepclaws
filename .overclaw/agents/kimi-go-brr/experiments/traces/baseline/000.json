@@ -1,0 +1,22 @@
+{
+  "trace_id": "baseline_000",
+  "input_data": {
+    "question": "I want to analyze how the Signal-to-Noise Quality Indicator (SNQI) varies across different weather conditions. For each weather condition, give weather condition name, the average SNQI, the median SNQI, and count how many analyzable signals there are. Sort the result by average SNQI in descending order.",
+    "db_id": "narpw1zpat",
+    "schema": "alien",
+    "evidence": "[0, 50]"
+  },
+  "output_data": {
+    "final_sql": "SELECT \n    o.weathprofile AS weather_condition,\n    AVG(s.snrratio) AS avg_snqi,\n    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY s.snrratio) AS median_snqi,\n    COUNT(*) AS analyzable_signals_count\nFROM alien.signals s\nJOIN alien.telescopes t ON s.telescref = t.telescregistry\nJOIN alien.observatories o ON t.observstation = o.observstation\nWHERE s.snrratio IS NOT NULL\nGROUP BY o.weathprofile\nORDER BY avg_snqi DESC;",
+    "has_sql": true,
+    "schema_name": "alien"
+  },
+  "spans": [],
+  "start_time": 1774651481.0696156,
+  "end_time": 1774651599.5193014,
+  "total_latency_ms": 118449.68581199646,
+  "total_tokens": 0,
+  "total_cost": 0.0,
+  "score": 0.0,
+  "error": null
+}

@@ -13,7 +13,7 @@ Download a small LiveSQLBench subset and make at least one benchmark database qu
 ## Deliverables
 
 - `scripts/download_benchmark.py`
-- `scripts/load_benchmark.py`
+- `scripts/sqlite_to_postgres_sql.py`
 - `eval/dataset.json`
 
 ## Tasks
@@ -21,8 +21,9 @@ Download a small LiveSQLBench subset and make at least one benchmark database qu
 1. Download the benchmark metadata and inspect the field structure.
 2. Save a small evaluation subset locally.
 3. Choose the smallest useful database to load first.
-4. Load schema and data into the Ghost main database.
-5. Verify at least one benchmark question maps to real tables in Ghost.
+4. Generate a Postgres-compatible SQL load script from the SQLite benchmark DB.
+5. Load schema and data into the Ghost main database through `ghost sql`.
+6. Verify at least one benchmark question maps to real tables in Ghost.
 
 ## Validation
 
@@ -44,3 +45,4 @@ Download a small LiveSQLBench subset and make at least one benchmark database qu
 
 - Start small. One database and a narrow dataset slice is enough to unlock Phase 3.
 - Airbyte stays out unless direct loading becomes a bottleneck.
+- The official SQLite variant is the fastest practical source for benchmark DB assets in this environment.

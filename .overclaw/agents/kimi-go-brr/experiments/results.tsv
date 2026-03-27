@@ -1,0 +1,3 @@
+iteration	avg_score	avg_structure	avg_final_sql	avg_has_sql	avg_schema_name	avg_tool_usage	status	description
+iter_004	69.1	15.8	18.8	15.0	12.0	7.5	0.0	skip	No valid candidates
+baseline	78.0	20.0	35.0	23.0	0.0	0.0	keep	Initial baseline

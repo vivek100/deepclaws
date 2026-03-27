@@ -1,4 +1,4 @@
-# Phase 7: Improvement Loop
+# Phase 8: Improvement Loop
 
 ## Goal
 

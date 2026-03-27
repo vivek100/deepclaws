@@ -1,0 +1,22 @@
+{
+  "trace_id": "baseline_001",
+  "input_data": {
+    "question": "Classify signals by TOLS Category, and for each group, show the category name, signal count, average Bandwidth-to-Frequency Ratio, and the standard deviation of the anomaly score.",
+    "db_id": "narpw1zpat",
+    "schema": "alien",
+    "evidence": "[3, 51, 52]"
+  },
+  "output_data": {
+    "final_sql": "SELECT \n    tc.category_name,\n    COUNT(s.signal_id) AS signal_count,\n    AVG(s.bandwidth_mhz / NULLIF(s.frequency_mhz, 0)) AS avg_bandwidth_frequency_ratio,\n    STDDEV(s.anomaly_score) AS stddev_anomaly_score\nFROM alien.signals s\nJOIN alien.tols_categories tc ON s.tols_category_id = tc.category_id\nGROUP BY tc.category_name, tc.category_id\nORDER BY tc.category_name;",
+    "has_sql": true,
+    "schema_name": "alien"
+  },
+  "spans": [],
+  "start_time": 1774651481.0716398,
+  "end_time": 1774651546.2775354,
+  "total_latency_ms": 65205.89566230774,
+  "total_tokens": 0,
+  "total_cost": 0.0,
+  "score": 0.0,
+  "error": null
+}

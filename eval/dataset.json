@@ -1,0 +1,186 @@
+[
+  {
+    "instance_id": "alien_1",
+    "db_id": "alien",
+    "question": "I want to analyze how the Signal-to-Noise Quality Indicator (SNQI) varies across different weather conditions. For each weather condition, give weather condition name, the average SNQI, the median SNQI, and count how many analyzable signals there are. Sort the result by average SNQI in descending order.",
+    "category": "Query",
+    "difficulty": "Moderate",
+    "high_level": true,
+    "conditions": {
+      "decimal": [],
+      "distinct": false,
+      "order": true
+    },
+    "preprocess_sql": [],
+    "clean_up_sqls": [],
+    "external_knowledge": [],
+    "test_cases": [],
+    "sol_sql": []
+  },
+  {
+    "instance_id": "alien_2",
+    "db_id": "alien",
+    "question": "Classify signals by TOLS Category, and for each group, show the category name, signal count, average Bandwidth-to-Frequency Ratio, and the standard deviation of the anomaly score.",
+    "category": "Query",
+    "difficulty": "Simple",
+    "high_level": false,
+    "conditions": {
+      "decimal": [],
+      "distinct": false,
+      "order": false
+    },
+    "preprocess_sql": [],
+    "clean_up_sqls": [],
+    "external_knowledge": [],
+    "test_cases": [],
+    "sol_sql": []
+  },
+  {
+    "instance_id": "alien_3",
+    "db_id": "alien",
+    "question": "Analyze how lunar interference affects observations by showing the current moon phase, average Lunar Interference Factor (LIF) and the count of high lunar interference events for each observatory, sorted by average LIF in descending order.",
+    "category": "Query",
+    "difficulty": "Simple",
+    "high_level": false,
+    "conditions": {
+      "decimal": [],
+      "distinct": false,
+      "order": true
+    },
+    "preprocess_sql": [],
+    "clean_up_sqls": [],
+    "external_knowledge": [],
+    "test_cases": [],
+    "sol_sql": []
+  },
+  {
+    "instance_id": "alien_4",
+    "db_id": "alien",
+    "question": "Which observatory stations are discovering the most potential technosignatures? For each station, display the observatory name, how many signals meet our technosignature criteria, their average TOLS score, average BFR values, and what percentage of all detected technosignatures they've found. I need this ranked by the stations with the most discoveries first.",
+    "category": "Query",
+    "difficulty": "Moderate",
+    "high_level": true,
+    "conditions": {
+      "decimal": [],
+      "distinct": false,
+      "order": true
+    },
+    "preprocess_sql": [],
+    "clean_up_sqls": [],
+    "external_knowledge": [],
+    "test_cases": [],
+    "sol_sql": []
+  },
+  {
+    "instance_id": "alien_5",
+    "db_id": "alien",
+    "question": "Show me a breakdown of signal modulation types with at least 5 occurrences. For each modulation type, display the modulation type, the number of signals, the average Modulation Complexity Score (MCS), and average signal-to-noise ratio (SNR). Also include a detailed JSON with each signal's MCS and SNR values. Keys are the signal record IDs, and values are inner objects containing two fields: `mcs` \u2013 the signal\u2019s MCS value, and `snr` \u2013 the SNR value.",
+    "category": "Query",
+    "difficulty": "Moderate",
+    "high_level": true,
+    "conditions": {
+      "decimal": [],
+      "distinct": false,
+      "order": false
+    },
+    "preprocess_sql": [],
+    "clean_up_sqls": [],
+    "external_knowledge": [],
+    "test_cases": [],
+    "sol_sql": []
+  },
+  {
+    "instance_id": "alien_6",
+    "db_id": "alien",
+    "question": "Which observatories have the most promising signals worth investigating? I need a summary by observatory showing the observatory name, their total signal count, average Research Priority Index (RPI) and approximate Confirmation Confidence Score (CCS) values, number of high-priority (RPI > 3) signals, number of high-confidence signals, and especially the number of signals that meet both criteria. Sort the results by observatories with the most high-priority-and-high-confidence signals first.",
+    "category": "Query",
+    "difficulty": "Moderate",
+    "high_level": true,
+    "conditions": {
+      "decimal": [],
+      "distinct": false,
+      "order": true
+    },
+    "preprocess_sql": [],
+    "clean_up_sqls": [],
+    "external_knowledge": [],
+    "test_cases": [],
+    "sol_sql": []
+  },
+  {
+    "instance_id": "alien_7",
+    "db_id": "alien",
+    "question": "Create a report evaluating observatory conditions using the Atmospheric Observability Index (AOI) and identifying stations meeting Optimal Observing Window (OOW) criteria. The output should group stations by whether meets OOW (bool:True or False). For each group, you should provide its boolean value of OOW, the count of stations, average AOI (rounded to 3 decimal places) and a JSON array whose elements each include  `station` (observatory name), `aoi` (AOI value), `lunar_factors` object with `stage` (lunar stage) and `distance` (lunar distance), and `solar_status` (solar status).",
+    "category": "Query",
+    "difficulty": "Moderate",
+    "high_level": true,
+    "conditions": {
+      "decimal": [
+        3
+      ],
+      "distinct": false,
+      "order": false
+    },
+    "preprocess_sql": [],
+    "clean_up_sqls": [],
+    "external_knowledge": [],
+    "test_cases": [],
+    "sol_sql": []
+  },
+  {
+    "instance_id": "alien_8",
+    "db_id": "alien",
+    "question": "Could you scan our database for potential signals matching Narrowband Technological Marker profiles? I need the signal fingerprints - ID, central frequency, frequency drift, Bandwidth-Frequency Ratio and the classification of NTM categories based on spectral coherence.",
+    "category": "Query",
+    "difficulty": "Simple",
+    "high_level": true,
+    "conditions": {
+      "decimal": [],
+      "distinct": false,
+      "order": false
+    },
+    "preprocess_sql": [],
+    "clean_up_sqls": [],
+    "external_knowledge": [],
+    "test_cases": [],
+    "sol_sql": []
+  },
+  {
+    "instance_id": "alien_9",
+    "db_id": "alien",
+    "question": "Give me a ranked list of all our observatory sites by their current observation quality. For each observatory, I need fileds: the station name, telescope ID, calculated Observation Quality Factor, any equipment problems listed together sepearated by comma, how many issues there are, and the Observational Confidence Level. Please rank them by Observation Quality Factor with the best first.",
+    "category": "Query",
+    "difficulty": "Moderate",
+    "high_level": true,
+    "conditions": {
+      "decimal": [],
+      "distinct": false,
+      "order": true
+    },
+    "preprocess_sql": [],
+    "clean_up_sqls": [],
+    "external_knowledge": [],
+    "test_cases": [],
+    "sol_sql": []
+  },
+  {
+    "instance_id": "alien_10",
+    "db_id": "alien",
+    "question": "I want to find signals that might contain structured information by analyzing their stability patterns. For each candidate, show the signal ID, signal type, Signal Stability Metric, one field that contains a combined stability textual report formatted exactly as: \"Frequency: <frequency stability>, Phase: <phase stability>, Integrity: <signal integrity>\" and the CIP Classification Label.",
+    "category": "Query",
+    "difficulty": "Moderate",
+    "high_level": true,
+    "conditions": {
+      "decimal": [
+        3
+      ],
+      "distinct": false,
+      "order": false
+    },
+    "preprocess_sql": [],
+    "clean_up_sqls": [],
+    "external_knowledge": [],
+    "test_cases": [],
+    "sol_sql": []
+  }
+]

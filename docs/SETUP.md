@@ -13,9 +13,11 @@ Use this together with:
 2. Phase 2: benchmark download and database loading
 3. Phase 3: agent with Ghost tools
 4. Phase 4: evaluation harness and baseline
-5. Phase 5: tracing
-6. Phase 6: iteration workflow with Git versions
-7. Phase 7: demo UI and PR review
+5. Phase 5: operator CLI utilities
+6. Phase 6: tracing
+7. Phase 7: iteration workflow with Git versions
+8. Phase 8: improvement loop
+9. Phase 9: demo UI and PR review
 
 ## Current local state
 
@@ -72,6 +74,25 @@ Scope:
 - Start with a very small subset and one database if needed
 - Ignore Airbyte unless direct loading becomes painful
 
+Working implementation path:
+
+- `scripts/download_benchmark.py` creates a local eval subset and copies one official SQLite benchmark DB locally.
+- `scripts/sqlite_to_postgres_sql.py` converts that SQLite DB into a Postgres-compatible SQL load script.
+- `ghost sql <database-id>` is the loading path into Ghost.
+- Start with a smoke schema and a single table before loading the full schema.
+
+Current implementation notes:
+
+- `eval/dataset.json` now exists with 10 `alien` questions.
+- `data/livesqlbench/alien.sqlite` exists locally.
+- `data/livesqlbench/alien_smoke.sql` loaded successfully into Ghost.
+- `data/livesqlbench/alien_full.sql` loaded the full `alien` schema into Ghost.
+- Verified row counts in Ghost:
+  - `alien.signals`: `1000`
+  - `alien.observatories`: `963`
+  - `alien.telescopes`: `949`
+- The full stdin import reported a duplicate-schema error after the tables were present, so future loads should prefer a more controlled file-feed path, but the data is present and queryable.
+
 Done when:
 
 - `eval/dataset.json` exists
@@ -127,7 +148,30 @@ Done when:
 
 - A baseline iteration exists on disk and can be reproduced
 
-## Phase 5: tracing
+## Phase 5: operator CLI utilities
+
+Goal:
+
+- Add stable CLI utilities for local execution before exposing these flows through an API
+
+Scope:
+
+- run one question from the command line
+- run an eval slice from the command line
+- inspect a saved experiment from the command line
+
+Examples to support:
+
+- `uv run python scripts/run_question.py --db <id> --question "..."`
+- `uv run python scripts/run_eval.py --dataset eval/dataset.json --limit 10`
+- `uv run python scripts/show_experiment.py --iteration 001`
+
+Done when:
+
+- Codex and local development can trigger the common workflows through named commands instead of ad hoc shell snippets
+- the same workflows are shaped cleanly enough to expose later through backend APIs
+
+## Phase 6: tracing
 
 Goal:
 
@@ -143,7 +187,7 @@ Done when:
 
 - One baseline iteration has trace visibility in the tracing tool
 
-## Phase 6: iteration workflow with Git versions
+## Phase 7: iteration workflow with Git versions
 
 Goal:
 
@@ -163,7 +207,17 @@ Done when:
 
 - You can map any experiment result back to exact code and prompt state
 
-## Phase 7: demo UI and PR review
+## Phase 8: improvement loop
+
+Goal:
+
+- Improve the baseline agent using traced failures and measured comparisons
+
+Done when:
+
+- There is at least one non-baseline iteration with a defensible before/after comparison
+
+## Phase 9: demo UI and PR review
 
 Goal:
 

@@ -1,0 +1,5 @@
+#  OverClaw agent registry — use: overclaw agent register / list / remove / update 
+
+agents = [
+    {name = "kimi-go-brr", entrypoint = "agent.overclaw_agent:run"},
+]

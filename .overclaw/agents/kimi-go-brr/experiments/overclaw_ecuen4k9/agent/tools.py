@@ -37,7 +37,7 @@ def ghost_connect(database_id: str) -> str:
 
 @tool
 def ghost_schema(database_id: str, schema: str) -> str:
-    """Return tables and columns for a specific schema in a Ghost database."""
+    """Inspect the active schema namespace first; return tables and columns for the resolved Ghost database ID and schema exactly as provided."""
     query = f"""
     SELECT table_name, column_name, data_type
     FROM information_schema.columns
@@ -49,6 +49,6 @@ def ghost_schema(database_id: str, schema: str) -> str:
 
 @tool
 def ghost_sql(database_id: str, schema: str, query: str) -> str:
-    """Execute SQL against a specific schema in a Ghost database."""
+    """Validate or execute candidate SQL against the active schema namespace using the resolved Ghost database ID and schema exactly as provided."""
     full_query = f'SET search_path TO "{schema}"; {query}'
     return _run_ghost(["sql", database_id, full_query])

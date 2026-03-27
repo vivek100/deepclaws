@@ -49,3 +49,4 @@ After this pass:
 1. Fix encoding issues in `PLAN.md`.
 2. Split `SETUP.md` into baseline setup and stretch integrations.
 3. Add a `README.md` once code exists, using `PLAN.md` as source material instead of keeping everything in one giant planning file.
+4. Keep local CLI utilities explicit in the plan so frontend/API work later wraps real execution paths.
