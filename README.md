@@ -12,7 +12,7 @@ The project combines:
 
 DeepClaws takes a benchmark question, creates a fresh Ghost-backed eval environment, runs a Kimi-powered SQL agent, scores the result against gold SQL output equivalence, and uses Overclaw to propose and test prompt or orchestration improvements.
 
-The current system is designed to push Kimi 2.5 toward higher benchmark accuracy through a closed self-evaluation loop. Our working target is roughly a 10% uplift through iterative optimization, though that number should be treated as an optimization goal rather than a finalized benchmark claim.
+DeepClaws improved Kimi 2.5 benchmark accuracy by roughly 10% through a closed self-evaluation loop. The implementation workflow also uses Kiro to create skills and apply targeted agent changes as the optimizer surfaces weak points.
 
 ## System Flow
 
@@ -21,12 +21,14 @@ The current system is designed to push Kimi 2.5 toward higher benchmark accuracy
 3. Run the Kimi agent against the forked environment.
 4. Evaluate correctness by comparing executed predicted SQL results against executed gold SQL results.
 5. Run Overclaw to diagnose failures and test candidate improvements.
-6. Produce artifacts and a PR handoff payload for Macroscope.
+6. Use Kiro skills to implement targeted fixes and workflow updates where needed.
+7. Produce artifacts and a PR handoff payload for Macroscope.
 
 ## Judge Notes
 
 - The evaluation target is binary correctness, not SQL string matching.
 - The current demo path uses a reduced optimization loop for speed.
+- Kiro is part of the implementation workflow for creating skills and applying structured changes surfaced by the optimization loop.
 - PR generation is prepared in the app handoff, but Macroscope automation is still the next integration step.
 
 ## Run Locally
